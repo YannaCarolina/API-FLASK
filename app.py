@@ -3,7 +3,6 @@ from flask_mysqldb import MySQL
 
 app = Flask(__name__)
 
-# Configuração do MySQL
 app.config['MYSQL_HOST'] = '127.0.0.1'
 app.config['MYSQL_PORT'] = 3308
 app.config['MYSQL_USER'] = 'root'
@@ -13,18 +12,15 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
-# Rota para processar o formulário de cadastro
-# Rota para exibir o formulário de cadastro
 @app.route('/cadastro', methods=['GET'])
 def mostrar_formulario_cadastro():
     return render_template('cadastro.html')
 
-# Rota para processar o formulário de cadastro
 @app.route('/cadastro', methods=['POST'])
 def cadastrar_produto():
     nome = request.form['nome']
     descricao = request.form['descricao']
-    estoque = request.form.get('estoque') == 'on'  # Converte para booleano
+    estoque = request.form.get('estoque') == 'on'
 
     cur = mysql.connection.cursor()
     cur.execute("INSERT INTO produtos (nome, descricao, estoque) VALUES (%s, %s, %s)",
@@ -44,11 +40,11 @@ def listar_produtos():
 
     cur = mysql.connection.cursor()
 
-    # Se a barra de pesquisa estiver vazia, obter todos os produtos
+
     if not search_query:
         cur.execute("SELECT * FROM produtos")
     else:
-        # Caso contrário, buscar por ID ou nome
+
         cur.execute("SELECT * FROM produtos WHERE id = %s OR nome LIKE %s",
                     (search_query, f'%{search_query}%'))
 
@@ -57,8 +53,6 @@ def listar_produtos():
 
     return render_template('listagem.html', produtos=produtos)
 
-
-# Rota para excluir um produto pelo ID
 @app.route('/excluir/<int:produto_id>', methods=['GET'])
 def confirmar_exclusao(produto_id):
     cur = mysql.connection.cursor()
@@ -67,7 +61,6 @@ def confirmar_exclusao(produto_id):
     cur.close()
     return render_template('confirmar_exclusao.html', produto=produto)
 
-# Rota para processar a exclusão
 @app.route('/excluir/<int:produto_id>/confirmar', methods=['POST'])
 def excluir_produto(produto_id):
     cur = mysql.connection.cursor()
